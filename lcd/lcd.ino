@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <LiquidCrystal_I2C.h>
 
-LiquidCrystal_I2C display(0x27, 16, 2);
-
 constexpr uint8_t make_row(const char* line) {
     return ( (((line[0] != ' ') & 1) << 4)
            | (((line[1] != ' ') & 1) << 3)
@@ -48,6 +46,8 @@ namespace RuChar {
     const uint8_t S = 'C';
     const uint8_t I1 = 4;
 }
+
+LiquidCrystal_I2C display(0x27, 16, 2);
 
 void setup()
 {
