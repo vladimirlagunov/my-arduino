@@ -1,2 +1,4 @@
 .build/
 build-uno/
+__pycache__/
+*.py[co]
