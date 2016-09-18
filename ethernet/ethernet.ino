@@ -33,20 +33,20 @@ void setup() {
     Serial.print(F("ENC28J60 Firmware Version: "));
     Serial.println(String(firmware_version));
 
-    bool dhcp_ok = ether.dhcpSetup(hostname);
-    Serial.println(dhcp_ok ? F("DHCP OK") : F("DHCP Fail"));
-
-    if (dhcp_ok) {
-        Serial.print(F("IP: "));
-        for (int i = 0; i < IP_LEN; ++i) {
-            if (i) {
-                Serial.write('.');
-            }
-            Serial.print(String(ether.myip[i]));
-        }
-        Serial.print(F("\r\n"));
-        Serial.flush();
+    while (!ether.dhcpSetup(hostname)) {
+        Serial.println(F("DHCP Fail"));
     }
+    Serial.println(F("DHCP OK"));
+
+    Serial.print(F("IP: "));
+    for (int i = 0; i < IP_LEN; ++i) {
+        if (i) {
+            Serial.write('.');
+        }
+        Serial.print(String(ether.myip[i]));
+    }
+    Serial.print(F("\r\n"));
+    Serial.flush();
 
     pinMode(RED_LED, OUTPUT);
     pinMode(GREEN_LED, OUTPUT);
