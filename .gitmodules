@@ -7,3 +7,6 @@
 [submodule "ethernet/libraries/ethercard"]
 	path = ethernet/libraries/ethercard
 	url = https://github.com/jcw/ethercard.git
+[submodule "Arduino-Makefile"]
+	path = Arduino-Makefile
+	url = https://github.com/sudar/Arduino-Makefile.git

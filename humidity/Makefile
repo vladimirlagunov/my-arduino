@@ -8,4 +8,4 @@
 ARDUINO_SKETCHBOOK := $(shell pwd)
 BOARD_TAG := uno
 ARDUINO_LIBS := DHT
-include ${ARDMK_DIR}/Arduino.mk
+include ../Arduino.mk
