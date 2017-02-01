@@ -137,8 +137,9 @@ void setup()
 int temp = 0;
 int hum = 0;
 
-int wait_cnt = 0;
 bool backlight_enabled = true;
+unsigned long last_update = 0;
+const unsigned long check_delay = 2000;
 
 void loop()
 {
@@ -150,8 +151,14 @@ void loop()
             display.noBacklight();
         }
     }
-    if (wait_cnt-- == 0) {
-        wait_cnt = 20;
+    unsigned long next_check = last_update + check_delay;
+    unsigned long now = millis();
+    if (next_check <= check_delay) {
+        // possibly integer overflow
+        next_check += check_delay + check_delay;
+        next_check += check_delay + check_delay;
+    }
+    if (next_check < now) {
         temp = dht.readTemperature();
         hum = dht.readHumidity();
         display.clear();
@@ -171,6 +178,7 @@ void loop()
         display.write('%');
 
         display.display();
+        last_update = millis();
     }
-    delay(100);
+    delay(50);
 }
