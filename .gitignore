@@ -2,3 +2,5 @@
 build-uno/
 __pycache__/
 *.py[co]
+.idea/
+cmake-build-debug/
