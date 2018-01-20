@@ -4,7 +4,7 @@
 #include "MovementReaction.hpp"
 
 const uint8_t MOVEMENT_GPIO_PIN = GPIOR05;
-const uint32_t duration = 20 * 1000;
+const uint32_t duration = 3 * 1000;
 const uint32_t riseCycle = 1 * 1000 / 256;
 const uint32_t fallCycle = 4 * 1000 / 256;
 const uint8_t LED_PIN = GPIOR03;

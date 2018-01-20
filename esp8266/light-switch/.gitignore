@@ -1,0 +1,4 @@
+.pioenvs
+.piolibdeps
+lib/secret/secret.hpp
+CMakeListsPrivate.txt

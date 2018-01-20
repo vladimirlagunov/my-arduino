@@ -1,0 +1,3 @@
+#cmakedefine SSID "@SSID@"
+#cmakedefine SSID_PASSWORD "@SSID_PASSWORD@"
+#cmakedefine HOSTNAME "@HOSTNAME@"
