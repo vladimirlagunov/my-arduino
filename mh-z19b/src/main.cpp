@@ -1,17 +1,16 @@
 #include <ArduinoPlug.hpp>
 #include <USBAPI.h>
-#include <SerialLogger.hpp>
+#include <StreamLogger.hpp>
 #include <SoftwareSerial.h>
 
 
 const uint8_t MHZ19B_SERIAL_RECEIVE_PIN = 8;
 const uint8_t MHZ19B_SERIAL_TRANSMIT_PIN = 9;
 
-
 class MHZ19BExample {
     static const unsigned long durationMillis = 1000;
 
-    SerialLogger logger;
+    logger::SerialLogger logger;
     SoftwareSerial mhz19bSerial;
     bool requestSent;  // probably excess entity
     unsigned long lastResponseMillis;
@@ -41,14 +40,14 @@ class MHZ19BExample {
 
     unsigned char checksumForReceiving() const {
         unsigned char result = 0;
-        uint8_t* ptr = bufferCycle;
+        uint8_t* ptr = nextBufferCycle(bufferCycle, 1);
         int i = 1;
         while (i < 8) {
             result += *ptr;
             ptr = nextBufferCycle(ptr, 1);
             ++i;
         }
-        return static_cast<unsigned char>(0xFF - result);  // no +1 - bug in scheme?
+        return static_cast<unsigned char>(0xFF - result + 1);
     }
 
     void logBuffer() {
@@ -80,7 +79,7 @@ class MHZ19BExample {
             }
             ++cursor;
         }
-        logger.debug(msg);
+        logger.debug() << msg << logger::end;
     }
 
     uint8_t* nextBufferCycle(uint8_t* ptr, uint8_t count) const {
@@ -97,15 +96,15 @@ class MHZ19BExample {
 
 public:
     explicit MHZ19BExample()
-            : logger(9600, Level::INFO), mhz19bSerial(MHZ19B_SERIAL_RECEIVE_PIN, MHZ19B_SERIAL_TRANSMIT_PIN), requestSent{false}, lastResponseMillis{0}, buffer{0}, bufferCycle{buffer} {
+            : logger(9600, logger::Level::INFO), mhz19bSerial(MHZ19B_SERIAL_RECEIVE_PIN, MHZ19B_SERIAL_TRANSMIT_PIN), requestSent{false}, lastResponseMillis{0}, buffer{0}, bufferCycle{buffer} {
         mhz19bSerial.begin(9600);
         delay(1000);
-        logger.info("Started up");
+        logger.info() << "Started up" << logger::end;
     }
 
     void loop() {
         if (mhz19bSerial.available()) {
-            logger.debug("Time to receive data...");
+            logger.debug() << "Time to receive data..." << logger::end;
             while (mhz19bSerial.available()) {
                 *bufferCycle = static_cast<uint8_t>(mhz19bSerial.read());
                 bufferCycle = nextBufferCycle(1);
@@ -113,23 +112,30 @@ public:
                     bufferCycle = buffer;
                 }
                 if (*bufferCycle == 0xFF && *nextBufferCycle(1) == 0x86) {
-                    logger.debug("Received:");
+                    logger.debug() << "Received:" << logger::end;
                     logBuffer();
                     if (checksumForReceiving() != buffer[8]) {
-                        logger.debug(("Checksum does not match. Expected " + String(checksumForReceiving())
-                                      + ", got " + String(buffer[8])).c_str());
+                        logger.debug()
+                                << "Checksum does not match. Expected "
+                                << checksumForReceiving()
+                                << ", got "
+                                << buffer[8]
+                                << logger::end;
                     } else {
                         uint16_t ppm = (static_cast<uint16_t>(buffer[2]) << 8) + buffer[3];
-                        logger.info(("PPM: " + String(ppm)).c_str());
+                        logger.info() << "PPM: " << ppm << logger::end;
                     }
                     lastResponseMillis = millis();
-                    logger.debug(("Next expected check at " + String(lastResponseMillis + durationMillis)).c_str());
+                    logger.debug()
+                            << "Next expected check at "
+                            << (lastResponseMillis + durationMillis)
+                            << logger::end;
                     requestSent = false;
                     break;
                 }
             }
         } else if (isReached(millis(), lastResponseMillis, durationMillis)) {
-            logger.debug("Time to send data...");
+            logger.debug() << "Time to send data..." << logger::end;
             bufferCycle = buffer;
             buffer[0] = 0xFF;  // constant
             buffer[1] = 0x01;  // sensor number, probably constant
@@ -144,7 +150,7 @@ public:
                 mhz19bSerial.write(i);
             }
             requestSent = true;
-            logger.debug("Sent:");
+            logger.debug() << "Sent:" << logger::end;
             logBuffer();
         }
         delay(100);

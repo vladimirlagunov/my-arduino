@@ -1,6 +1,6 @@
 #include <RCSwitch.h>
 #include "ArduinoPlug.hpp"
-#include "SerialLogger.hpp"
+#include "StreamLogger.hpp"
 #include "MovementReaction.hpp"
 
 const uint8_t MOVEMENT_GPIO_PIN = GPIOR05;
@@ -10,26 +10,26 @@ const uint32_t fallCycle = 4 * 1000 / 256;
 const uint8_t LED_PIN = GPIOR03;
 
 class LedReaction {
-    SerialLogger& serialLogger;
+    logger::Logger& logger;
     uint8_t expectedValue;
     int8_t delta;
     uint8_t value;
     uint8_t valueCycle;
 public:
-    explicit LedReaction(SerialLogger& logger)
-            : serialLogger(logger), expectedValue(0), delta(0), value(0), valueCycle(0) {
+    explicit LedReaction(logger::Logger& logger)
+            : logger(logger), expectedValue(0), delta(0), value(0), valueCycle(0) {
         pinMode(LED_PIN, OUTPUT);
     }
 
     void rise() {
-        serialLogger.info("led on");
+        logger.info() << "led on" << logger::end;
         delta = 1;
         expectedValue = 255;
         valueCycle = 0;
     }
 
     void fall() {
-        serialLogger.info("led off");
+        logger.info() << "led off" << logger::end;
         delta = -1;
         expectedValue = 0;
         valueCycle = 0;
@@ -50,13 +50,13 @@ public:
 };
 
 class Main {
-    SerialLogger serialLogger;
+    logger::SerialLogger logger;
     LedReaction ledReaction;
     MovementReaction<LedReaction> movementReaction;
 
 public:
-    Main() : serialLogger(9600),
-             ledReaction(serialLogger),
+    Main() : logger(9600, logger::Level::INFO),
+             ledReaction(logger),
              movementReaction(ledReaction, duration, MOVEMENT_GPIO_PIN) {
     }
 
