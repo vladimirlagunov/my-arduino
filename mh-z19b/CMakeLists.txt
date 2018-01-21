@@ -65,4 +65,4 @@ if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/.piolibdeps)
     )
 endif()
 
-add_executable(${PROJECT_NAME} ${SRC_LIST} ../mylib/Logger/Logger.hpp)
+add_executable(${PROJECT_NAME} ${SRC_LIST})

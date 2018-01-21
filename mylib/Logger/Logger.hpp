@@ -1,6 +1,7 @@
 #pragma once
 
 #include <WString.h>
+#include <stdint.h>
 
 namespace logger {
     enum class Level {
@@ -90,11 +91,17 @@ namespace logger {
     };
 
     class DummyLogger : public Logger {
+        static DummyLogger instance;
+
         virtual LogMessageStream sendMsgImpl(Level ignored1) {
             return LogMessageStream(this, &dummyWriteMessage, &dummyFinalizeMessage);
         }
 
-    public:
         DummyLogger() : Logger(Level::INFO) {}
+
+    public:
+        static DummyLogger& singleton() {
+            return instance;
+        }
     };
 }
